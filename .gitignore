@@ -1,0 +1,8 @@
+# Build #
+/target
+
+# IDEA #
+/.idea
+
+# Database #
+/db.sqlite

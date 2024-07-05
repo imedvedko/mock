@@ -1,0 +1,5 @@
+CREATE TABLE audit (
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    name TEXT NOT NULL,
+    response TEXT
+);

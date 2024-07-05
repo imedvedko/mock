@@ -1,0 +1,1 @@
+ALTER TABLE logs ADD timeout UNSIGNED INTEGER;
