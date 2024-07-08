@@ -1,16 +1,15 @@
 use crate::model::Audit;
 use crate::model::Result;
 use crate::model::User;
-use crate::repository::MockData;
+use crate::repository::AuditRepository;
 use rocket::get;
 use rocket::serde::json::Json;
-use rocket_db_pools::Connection;
 use rocket_okapi::openapi;
 
 #[openapi(tag = "Audit")]
 #[get("/audit")]
-pub async fn get(db: Connection<MockData>, _user: User) -> Result<Json<Vec<Audit>>> {
-    let audit = crate::repository::audit::get(db).await?;
+pub async fn get(mut repository: AuditRepository, _user: User) -> Result<Json<Vec<Audit>>> {
+    let audit = repository.get().await?;
 
     Ok(Json(audit))
 }
@@ -18,11 +17,11 @@ pub async fn get(db: Connection<MockData>, _user: User) -> Result<Json<Vec<Audit
 #[openapi(tag = "Audit")]
 #[get("/tokens/<token>/audit")]
 pub async fn token_get(
-    db: Connection<MockData>,
+    mut repository: AuditRepository,
     _user: User,
-    token: &str,
+    token: String,
 ) -> Result<Json<Vec<Audit>>> {
-    let audit = crate::repository::audit::token_get(db, token).await?;
+    let audit = repository.token_get(token).await?;
 
     Ok(Json(audit))
 }
@@ -30,11 +29,11 @@ pub async fn token_get(
 #[openapi(tag = "Audit")]
 #[get("/mocks/<name>/audit")]
 pub async fn mock_get(
-    db: Connection<MockData>,
+    mut repository: AuditRepository,
     _user: User,
-    name: &str,
+    name: String,
 ) -> Result<Json<Vec<Audit>>> {
-    let audit = crate::repository::audit::mock_get(db, name).await?;
+    let audit = repository.mock_get(name).await?;
 
     Ok(Json(audit))
 }

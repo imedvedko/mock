@@ -1,5 +1,13 @@
-pub mod audit;
-pub mod log;
+#[macro_use]
+mod r#macro;
+
+mod audit;
+mod log;
+mod mock;
+
+pub use audit::AuditRepository;
+pub use log::LogRepository;
+pub use mock::MockRepository;
 
 use rocket::log::private::error;
 use rocket::{fairing, Build, Rocket};

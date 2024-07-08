@@ -12,9 +12,7 @@ use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
 
 use crate::model::Config;
 
-mod api;
 mod model;
-mod open_api;
 mod repository;
 mod routing;
 

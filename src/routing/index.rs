@@ -6,7 +6,7 @@ use rocket_okapi::openapi;
 #[get("/")]
 pub fn index() -> RawHtml<String> {
     let html = format!(
-        "<h1>Hello, world!</h1><ul><li><a href=\"{}\">swagger</a></li><li><a href=\"{}\">rapidoc</a></li></ul>",
+        r#"<h1>Hello, world!</h1><ul><li><a href="{}">swagger</a></li><li><a href="{}">rapidoc</a></li></ul>"#,
         rocket::uri!("/swagger-ui/"),
         rocket::uri!("/rapidoc/")
     );
