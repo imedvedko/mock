@@ -1,0 +1,8 @@
+services:
+  mock:
+    build:
+      context: .
+      args:
+        PORT: ${PORT:-8888}
+    ports:
+      - "${PORT:-8888}:${PORT:-8888}"
