@@ -1,8 +1,6 @@
-use crate::model::Mock;
-use crate::model::Result;
-use crate::model::User;
+use crate::model::{Conflict, Mock, Result, User};
 use crate::repository::MockRepository;
-use rocket::response::status::Created;
+use rocket::response::status::{Created, NoContent};
 use rocket::serde::json::Json;
 use rocket::{delete, get, post, put};
 use rocket_okapi::openapi;
@@ -21,11 +19,25 @@ pub async fn create(
     mut repository: MockRepository,
     user: User,
     mock: Json<Mock>,
-) -> Result<Created<Json<Mock>>> {
-    let mock = repository.create(user, mock.into_inner()).await?;
-    let location = rocket::uri!(get(&mock.name)).to_string();
+) -> Result<Conflict<Created<Json<Mock>>>> {
+    let mock = mock.into_inner();
+    let mock_name = mock.name.clone();
+    let result = repository.create(user, mock).await;
+    let responder = match result {
+        Err(rocket::response::Debug(sqlx::Error::Database(error)))
+            if error.is_unique_violation() =>
+        {
+            Conflict::error(mock_name)
+        }
+        _ => {
+            let mock = result?;
+            let location = rocket::uri!(get(&mock.name)).to_string();
 
-    Ok(Created::new(location).body(Json(mock)))
+            Conflict::ok(Created::new(location).body(Json(mock)))
+        }
+    };
+
+    Ok(responder)
 }
 
 #[openapi(tag = "Mock")]
@@ -47,12 +59,23 @@ pub async fn update(
     user: User,
     name: String,
     mock: Json<Mock>,
-) -> Result<Option<Json<Mock>>> {
+) -> Result<Conflict<Option<Json<Mock>>>> {
     let mock = mock.into_inner();
-    let mock = repository.update(user, name, mock).await?;
-    let response = mock.map(Json);
+    let mock_name = mock.name.clone();
+    let result = repository.update(user, name, mock).await;
+    let responder = match result {
+        Err(rocket::response::Debug(sqlx::Error::Database(error)))
+            if error.is_unique_violation() =>
+        {
+            Conflict::error(mock_name)
+        }
+        _ => {
+            let mock = result?.map(Json);
+            Conflict::ok(mock)
+        }
+    };
 
-    Ok(response)
+    Ok(responder)
 }
 
 #[openapi(tag = "Mock")]
@@ -61,6 +84,8 @@ pub async fn delete(
     mut repository: MockRepository,
     user: User,
     name: String,
-) -> Result<Option<()>> {
-    repository.delete(user, name).await
+) -> Result<Option<NoContent>> {
+    let response = repository.delete(user, name).await?.map(|_| NoContent);
+
+    Ok(response)
 }

@@ -1,16 +1,16 @@
+use model::{Config, Response};
 use rocket::config::Ident;
 use rocket::fairing::AdHoc;
 use rocket::figment::providers::{Env, Format, Toml};
 use rocket::figment::{Figment, Profile};
-use rocket::launch;
+use rocket::http::Status;
 use rocket::shield::Shield;
+use rocket::{catch, catchers, launch, Request};
 use rocket_db_pools::Database;
 use rocket_okapi::openapi_get_routes;
 use rocket_okapi::rapidoc::{make_rapidoc, GeneralConfig, HideShowConfig, RapiDocConfig};
 use rocket_okapi::settings::UrlObject;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
-
-use crate::model::Config;
 
 mod model;
 mod repository;
@@ -85,4 +85,10 @@ fn rocket() -> _ {
                 ..Default::default()
             }),
         )
+        .register("/", catchers![catcher])
+}
+
+#[catch(default)]
+fn catcher(status: Status, _request: &Request) -> Response {
+    Response::http_error(status)
 }

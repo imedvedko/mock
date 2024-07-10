@@ -1,7 +1,4 @@
-use crate::model::BigString;
-use crate::model::Mock;
-use crate::model::Result;
-use crate::model::User;
+use crate::model::{BigString, Conflict, Mock, Result, User};
 use crate::repository::MockRepository;
 use rocket::response::status::Created;
 use rocket::serde::json::Json;
@@ -15,15 +12,27 @@ pub async fn create(
     user: User,
     name: String,
     response: BigString,
-) -> Result<Created<Json<Mock>>> {
+) -> Result<Conflict<Created<Json<Mock>>>> {
     let mock = Mock {
-        name,
+        name: name.clone(),
         response: response.value,
     };
-    let mock = repository.create(user, mock).await?;
-    let location = rocket::uri!(crate::routing::mock::get(&mock.name)).to_string();
+    let result = repository.create(user, mock).await;
+    let responder = match result {
+        Err(rocket::response::Debug(sqlx::Error::Database(error)))
+            if error.is_unique_violation() =>
+        {
+            Conflict::error(name)
+        }
+        _ => {
+            let mock = result?;
+            let location = rocket::uri!(crate::routing::mock::get(&mock.name)).to_string();
 
-    Ok(Created::new(location).body(Json(mock)))
+            Conflict::ok(Created::new(location).body(Json(mock)))
+        }
+    };
+
+    Ok(responder)
 }
 
 #[openapi(tag = "Data")]

@@ -72,7 +72,6 @@ impl<'a> OpenApiFromRequest<'a> for User {
     }
 
     fn get_responses(_gen: &mut OpenApiGenerator) -> rocket_okapi::Result<Responses> {
-        // let schema = gen.json_schema_no_ref::<Mock>();
         Ok(Responses {
             responses: okapi::map! {
                 Status::Forbidden.code.to_string() => RefOr::Object(okapi::openapi3::Response {

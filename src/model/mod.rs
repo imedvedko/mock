@@ -1,15 +1,21 @@
 mod audit;
 mod bid_string;
 mod config;
+mod conflict;
+mod http_error;
 mod log;
 mod mock;
+mod response;
 mod result;
 mod user;
 
 pub use audit::Audit;
 pub use bid_string::BigString;
 pub use config::Config;
+pub use conflict::Conflict;
+use http_error::HttpError;
 pub use log::Log;
 pub use mock::Mock;
+pub use response::Response;
 pub use result::Result;
 pub use user::User;
