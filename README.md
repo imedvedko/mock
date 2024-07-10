@@ -1,5 +1,4 @@
 # Mock
-[![Build Status](https://app.travis-ci.com/imedvedko/mock.svg?branch=master)](https://app.travis-ci.com/imedvedko/mock)
 
 It is a server-side stub service for easy testing third-party integrations in complex software systems
 
