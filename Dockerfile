@@ -1,4 +1,4 @@
-FROM rust:1.79-slim-bookworm AS builder
+FROM rust:1.79-bookworm AS builder
 
 RUN cargo install sqlx-cli --no-default-features --features sqlite
 
