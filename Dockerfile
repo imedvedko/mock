@@ -1,4 +1,4 @@
-FROM rust:1.79 as builder
+FROM rust:1.79-slim-bookworm AS builder
 
 RUN cargo install sqlx-cli --no-default-features --features sqlite
 
@@ -10,7 +10,7 @@ COPY . .
 RUN sqlx database setup
 RUN cargo build --release
 
-FROM rust:1.79
+FROM debian:bookworm-slim
 
 COPY --from=build /usr/src/mock/target/release/mock /usr/local/bin/mock
 
