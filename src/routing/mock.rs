@@ -1,4 +1,4 @@
-use crate::model::{Conflict, Mock, Result, User};
+use crate::model::{Conflict, Mock, PageRequest, Result, User};
 use crate::repository::MockRepository;
 use rocket::response::status::{Created, NoContent};
 use rocket::serde::json::Json;
@@ -6,9 +6,13 @@ use rocket::{delete, get, post, put};
 use rocket_okapi::openapi;
 
 #[openapi(tag = "Mock")]
-#[get("/mocks")]
-pub async fn list(mut repository: MockRepository, _user: User) -> Result<Json<Vec<String>>> {
-    let mocks = repository.list().await?;
+#[get("/mocks?<page_request..>")]
+pub async fn list(
+    mut repository: MockRepository,
+    _user: User,
+    page_request: PageRequest,
+) -> Result<Json<Vec<String>>> {
+    let mocks = repository.list(page_request).await?;
 
     Ok(Json(mocks))
 }
