@@ -1,12 +1,14 @@
-use crate::model::{Mock, Result, User};
+use crate::model::{Mock, PageRequest, Result, User};
 use rocket::tokio::time::{sleep, Duration};
 use sqlx::Connection;
 
 repository!(MockRepository);
 
 impl MockRepository {
-    pub async fn list(&mut self) -> Result<Vec<String>> {
-        let mocks = sqlx::query!("SELECT name FROM mocks")
+    pub async fn list(&mut self, page_request: PageRequest) -> Result<Vec<String>> {
+        let limit = page_request.limit();
+        let offset = page_request.offset();
+        let mocks = sqlx::query!("SELECT name FROM mocks LIMIT ? OFFSET ?", limit, offset)
             .fetch_all(&mut **self.db)
             .await?
             .into_iter()
